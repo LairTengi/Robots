@@ -1,10 +1,6 @@
 package gui;
 
-import java.awt.Color;
-import java.awt.EventQueue;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Point;
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
@@ -24,11 +20,12 @@ public class GameVisualizer extends JPanel
     }
 
     public double getM_robotPositionX() {
-        return m_robotPositionX;
+        return this.m_robotPositionX = m_robotPositionX;
+
     }
 
     public double getM_robotPositionY() {
-        return m_robotPositionY;
+        return this.m_robotPositionY = m_robotPositionY;
     }
     private volatile double m_robotPositionX = 100;
     private volatile double m_robotPositionY = 100;
@@ -63,8 +60,15 @@ public class GameVisualizer extends JPanel
             @Override
             public void mouseClicked(MouseEvent e)
             {
-                setTargetPosition(e.getPoint());
+                //TODO: Испавить отображение точки на экране
+                Point point = e.getPoint();
+                double scale = Toolkit.getDefaultToolkit().getScreenResolution() / 220.0;
+                point.x = (int) (point.x / scale);
+                point.y = (int) (point.y / scale);
+                setTargetPosition(point);
                 repaint();
+                //setTargetPosition(e.getPoint());
+                //repaint();
             }
         });
         setDoubleBuffered(true);
@@ -107,13 +111,22 @@ public class GameVisualizer extends JPanel
         // Угол поворота
         double angleToTarget = angleTo(m_robotPositionX, m_robotPositionY, m_targetPositionX, m_targetPositionY);
         double angularVelocity = 0;
-        if (angleToTarget > m_robotDirection)
+        if (angleToTarget - m_robotDirection > Math.PI)
+        {
+            angularVelocity = -maxAngularVelocity;
+        }
+        if (angleToTarget - m_robotDirection < -Math.PI)
         {
             angularVelocity = maxAngularVelocity;
         }
-        if (angleToTarget < m_robotDirection)
-        {
+        if (angleToTarget - m_robotDirection < Math.PI && angleToTarget - m_robotDirection >= 0) {
+            angularVelocity = maxAngularVelocity;
+        }
+        if (angleToTarget - m_robotDirection < 0 && angleToTarget - m_robotDirection >= -Math.PI) {
             angularVelocity = -maxAngularVelocity;
+        }
+        if (unachievable()) {
+            angularVelocity = 0;
         }
 
         moveRobot(velocity, angularVelocity, 10);
@@ -189,11 +202,25 @@ public class GameVisualizer extends JPanel
 
     private void drawRobot(Graphics2D g, int x, int y, double direction)
     {
-        int robotCenterX = round(m_robotPositionX);
-        int robotCenterY = round(m_robotPositionY);
+        if (x < 0) {
+            x = 0;
+        }
+        if (y < 0) {
+            y = 0;
+        }
+        if (y > getHeight()) {
+            y = getHeight();
+        }
+        if (x > getWidth()) {
+            x = getWidth();
+        }
+
+        int robotCenterX = x;
+        int robotCenterY = y;
+
         AffineTransform t = AffineTransform.getRotateInstance(direction, robotCenterX, robotCenterY);
         g.setTransform(t);
-        g.setColor(Color.MAGENTA);
+        g.setColor(Color.BLUE);
         fillOval(g, robotCenterX, robotCenterY, 30, 10);
         g.setColor(Color.BLACK);
         drawOval(g, robotCenterX, robotCenterY, 30, 10);
@@ -211,5 +238,22 @@ public class GameVisualizer extends JPanel
         fillOval(g, x, y, 5, 5);
         g.setColor(Color.BLACK);
         drawOval(g, x, y, 5, 5);
+    }
+
+    private boolean unachievable() {
+        double dx = m_targetPositionX - m_robotPositionX;
+        double dy = m_targetPositionY - m_robotPositionY;
+
+        double new_dx = Math.cos(m_robotDirection) * dx + Math.sin(m_robotDirection) * dy;
+        double new_dy = Math.cos(m_robotDirection) * dy - Math.sin(m_robotDirection) * dx;
+
+        double y_center = maxVelocity / maxAngularVelocity;
+        double dist1 = (Math.sqrt(Math.pow((new_dx), 2) + Math.pow(new_dy - y_center, 2)));
+        double dist2 = (Math.sqrt(Math.pow((new_dx), 2) + Math.pow(new_dy + y_center, 2)));
+
+        if (dist1 > maxVelocity / maxAngularVelocity && dist2 > maxVelocity / maxAngularVelocity) {
+            return false;
+        }
+        return true;
     }
 }
