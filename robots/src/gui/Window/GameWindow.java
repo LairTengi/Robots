@@ -1,5 +1,6 @@
-package gui;
+package gui.Window;
 
+import gui.GameVisual.View.GameVisualizer;
 import serialization.SerializationInternalFrame;
 
 import java.awt.BorderLayout;

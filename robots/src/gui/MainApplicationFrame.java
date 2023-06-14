@@ -12,6 +12,8 @@ import java.util.Properties;
 
 import javax.swing.*;
 
+import gui.Window.GameWindow;
+import gui.Window.LogWindow;
 import log.Logger;
 
 /**

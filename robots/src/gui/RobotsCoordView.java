@@ -1,9 +1,9 @@
 package gui;
 
+import gui.Window.GameWindow;
 import serialization.SerializationInternalFrame;
 
 import java.util.TimerTask;
-import javax.swing.JInternalFrame;
 import java.util.Timer;
 import javax.swing.JTextArea;
 
