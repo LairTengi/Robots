@@ -1,12 +1,17 @@
-package gui;
+package gui.Window;
+
+import gui.GameVisual.View.GameVisualizer;
+import serialization.SerializationInternalFrame;
 
 import java.awt.BorderLayout;
 
-import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
 
-public class GameWindow extends JInternalFrame
+public class GameWindow extends SerializationInternalFrame
 {
+    public GameVisualizer getM_visualizer() {
+        return m_visualizer;
+    }
     private final GameVisualizer m_visualizer;
     public GameWindow() 
     {
